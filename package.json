@@ -22,7 +22,8 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "create-admin": "node src/scripts/createSuperAdmin.js"
+    "create-admin": "node src/scripts/createSuperAdmin.js",
+    "build": "echo 'No build step required'"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
