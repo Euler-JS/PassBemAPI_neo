@@ -1,0 +1,37 @@
+FROM node:18-alpine
+
+# Instalar dependências do sistema necessárias
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    sqlite3 \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# Criar diretório da aplicação
+WORKDIR /app
+
+# Copiar arquivos de dependências primeiro (para cache de layers)
+COPY package*.json ./
+COPY yarn.lock* ./
+
+# Instalar dependências
+RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile; else npm ci --only=production; fi
+
+# Copiar código fonte
+COPY . .
+
+# Criar diretório para uploads e definir permissões
+RUN mkdir -p uploads public/uploads && \
+    chmod 755 uploads public/uploads
+
+# Expor porta
+EXPOSE 3333
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3333/health || exit 1
+
+# Comando para iniciar
+CMD ["sh", "-c", "./init.sh && npm start"]
