@@ -23,7 +23,10 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "create-admin": "node src/scripts/createSuperAdmin.js",
-    "build": "echo 'No build step required'"
+    "build": "echo 'No build step required'",
+    "health": "node -e \"console.log('OK')\"",
+    "docker:build": "docker build -f Dockerfile.coolify -t passbem-api .",
+    "docker:run": "docker run -p 3333:3333 passbem-api"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
