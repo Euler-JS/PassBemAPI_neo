@@ -21,7 +21,6 @@ const app = express();
 mongoose.connect(acess, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true,
     retryWrites: true
 }).catch(err => {
     console.error('Erro ao conectar ao MongoDB:', err);

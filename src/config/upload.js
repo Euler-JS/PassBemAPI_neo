@@ -13,31 +13,34 @@ const publicUploadsDir = path.resolve(__dirname, "..", "..", "public", "uploads"
 });
 
 // Configuração padrão - mantém compatibilidade com rotas existentes
+const storage = multer.diskStorage({
+    destination: path.resolve(__dirname, "..", "..", "uploads"),
+    filename: (req, file, cb) => {
+        let teste = file.originalname.split(" ");
+        teste = String(teste);
+        teste = teste.replace(/,/g, "");
+
+        const ext = path.extname(file.originalname);
+        const name = path.basename(teste, ext);
+        cb(null, `${name}-${Date.now()}${ext}`);
+    }
+});
+
+// Nova configuração para public/uploads (novas rotas)
+const storagePublic = multer.diskStorage({
+    destination: publicUploadsDir,
+    filename: (req, file, cb) => {
+        let teste = file.originalname.split(" ");
+        teste = String(teste);
+        teste = teste.replace(/,/g, "");
+
+        const ext = path.extname(file.originalname);
+        const name = path.basename(teste, ext);
+        cb(null, `${name}-${Date.now()}${ext}`);
+    }
+});
+
 module.exports = {
-    storage: multer.diskStorage({
-        destination: path.resolve(__dirname, "..", "..", "uploads"),
-        filename: (req, file, cb) => {
-            let teste = file.originalname.split(" ");
-            teste = String(teste);
-            teste = teste.replace(/,/g, "");
-
-            const ext = path.extname(file.originalname);
-            const name = path.basename(teste, ext);
-            cb(null, `${name}-${Date.now()}${ext}`);
-        }
-    }),
-    
-    // Nova configuração para public/uploads (novas rotas)
-    storagePublic: multer.diskStorage({
-        destination: publicUploadsDir,
-        filename: (req, file, cb) => {
-            let teste = file.originalname.split(" ");
-            teste = String(teste);
-            teste = teste.replace(/,/g, "");
-
-            const ext = path.extname(file.originalname);
-            const name = path.basename(teste, ext);
-            cb(null, `${name}-${Date.now()}${ext}`);
-        }
-    })
+    storage,
+    storagePublic
 }

@@ -51,10 +51,13 @@ const AllDataRecovery = []
 const routes = express.Router();
 
 // Upload padrão - mantém rotas existentes funcionando
-const upload = multer(uploadConfig);
+const upload = multer({ storage: uploadConfig.storage });
 
 // Upload para public/uploads - apenas para novas rotas
-const uploadPublic = multer({ storage: uploadConfig.storagePublic });
+const uploadPublic = multer({ 
+    storage: uploadConfig.storagePublic,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
 
 
 
@@ -180,9 +183,60 @@ routes.get('/GetUsersPushs',
     GetUsersPush
 );
 
-// Rotas de Upload (novas) - salvam em public/uploads
-routes.post('/upload/single', uploadPublic.single("file"), UploadController.uploadSingle);
-routes.post('/upload/multiple', uploadPublic.array("files", 10), UploadController.uploadMultiple);
+// ============================================
+// ROTAS DE UPLOAD MÚLTIPLO (NOVAS)
+// ============================================
+
+// Debug middleware para uploads
+routes.use('/upload', (req, res, next) => {
+    console.log('=== DEBUG UPLOAD REQUEST ===');
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    console.log('Content-Type:', req.headers['content-type']);
+    next();
+});
+
+// Upload de arquivo único
+routes.post("/upload/single", 
+    (req, res, next) => {
+        uploadPublic.single("file")(req, res, (err) => {
+            if (err) {
+                console.error('Multer Error (single):', err);
+                return res.status(400).json({
+                    message: "Erro no upload",
+                    type: "Error",
+                    error: err.message,
+                    details: err.field ? `Campo esperado: 'file', recebido: '${err.field}'` : null
+                });
+            }
+            next();
+        });
+    },
+    UploadController.single
+);
+
+// Upload de múltiplos arquivos
+routes.post("/upload/multiple", 
+    (req, res, next) => {
+        uploadPublic.array("files", 10)(req, res, (err) => {
+            if (err) {
+                console.error('Multer Error (multiple):', err);
+                return res.status(400).json({
+                    message: "Erro no upload",
+                    type: "Error",
+                    error: err.message,
+                    details: err.field ? `Campo esperado: 'files', recebido: '${err.field}'` : null
+                });
+            }
+            next();
+        });
+    },
+    UploadController.multiple
+);
+
+// ============================================
+// ROTAS EXISTENTES (NÃO ALTERAR)
+// ============================================
 
 routes.get('/allconvite',ConviteController.indexall)
 
