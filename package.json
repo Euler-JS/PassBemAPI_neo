@@ -23,6 +23,7 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "create-admin": "node src/scripts/createSuperAdmin.js",
+    "migrate:filenames": "node scripts/migrate-filenames.js",
     "build": "echo 'No build step required'",
     "health": "node -e \"console.log('OK')\"",
     "docker:build": "docker build -f Dockerfile.coolify -t passbem-api .",

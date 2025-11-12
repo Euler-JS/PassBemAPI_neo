@@ -15,34 +15,28 @@ if (!fs.existsSync(publicUploadsDir)) {
 }
 
 // Configuração padrão - mantém compatibilidade com rotas existentes
+// IMPORTANTE: Usa nome original para manter compatibilidade na migração
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadsDir);
     },
     filename: (req, file, cb) => {
-        let teste = file.originalname.split(" ");
-        teste = String(teste);
-        teste = teste.replace(/,/g, "");
-
-        const ext = path.extname(file.originalname);
-        const name = path.basename(teste, ext);
-        cb(null, `${name}-${Date.now()}${ext}`);
+        // Usar nome original sem adicionar timestamp
+        // Isso mantém compatibilidade com arquivos do servidor antigo
+        cb(null, file.originalname);
     }
 });
 
 // Nova configuração para public/uploads (novas rotas)
+// IMPORTANTE: Usa nome original para manter compatibilidade na migração
 const storagePublic = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, publicUploadsDir);
     },
     filename: (req, file, cb) => {
-        let teste = file.originalname.split(" ");
-        teste = String(teste);
-        teste = teste.replace(/,/g, "");
-
-        const ext = path.extname(file.originalname);
-        const name = path.basename(teste, ext);
-        cb(null, `${name}-${Date.now()}${ext}`);
+        // Usar nome original sem adicionar timestamp
+        // Isso mantém compatibilidade com arquivos do servidor antigo
+        cb(null, file.originalname);
     }
 });
 
