@@ -44,6 +44,10 @@ app.use(cors());
 // Middleware para servir arquivos estáticos
 // No Vercel, você deve usar um serviço de armazenamento externo
 if (process.env.VERCEL !== '1') {
+    // Servir arquivos de public/uploads (novos uploads)
+    app.use("/files", express.static(path.resolve(__dirname, "public", "uploads")));
+    
+    // Manter compatibilidade com uploads antigos
     app.use("/files", express.static(path.resolve(__dirname, "uploads")));
 } else {
     // Redirecionar arquivos para um CDN ou serviço de storage

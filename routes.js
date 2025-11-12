@@ -44,11 +44,17 @@ const ConviteController = require('./src/controllers/fullControler')
 
 const FormController =  require('./src/controllers/FormControler')
 
+const UploadController = require('./src/controllers/Web/UploadController')
+
 const AllDataRecovery = []
 
 const routes = express.Router();
 
+// Upload padrão - mantém rotas existentes funcionando
 const upload = multer(uploadConfig);
+
+// Upload para public/uploads - apenas para novas rotas
+const uploadPublic = multer({ storage: uploadConfig.storagePublic });
 
 
 
@@ -173,6 +179,10 @@ routes.post('/Sendnotifications',
 routes.get('/GetUsersPushs',
     GetUsersPush
 );
+
+// Rotas de Upload (novas) - salvam em public/uploads
+routes.post('/upload/single', uploadPublic.single("file"), UploadController.uploadSingle);
+routes.post('/upload/multiple', uploadPublic.array("files", 10), UploadController.uploadMultiple);
 
 routes.get('/allconvite',ConviteController.indexall)
 

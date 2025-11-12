@@ -1,21 +1,43 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
+// Garantir que os diretórios existem
+const uploadsDir = path.resolve(__dirname, "..", "..", "uploads");
+const publicUploadsDir = path.resolve(__dirname, "..", "..", "public", "uploads");
 
-module.exports={
-    storage : multer.diskStorage({
-        
-        destination: path.resolve(__dirname, "..","..","uploads"),
-        filename:(req, file, cb) =>{
+[uploadsDir, publicUploadsDir].forEach(dir => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+});
 
-            let teste = file.originalname.split(" ")
-            teste = String(teste)
-            teste = teste.replace(/,/g,"")
+// Configuração padrão - mantém compatibilidade com rotas existentes
+module.exports = {
+    storage: multer.diskStorage({
+        destination: path.resolve(__dirname, "..", "..", "uploads"),
+        filename: (req, file, cb) => {
+            let teste = file.originalname.split(" ");
+            teste = String(teste);
+            teste = teste.replace(/,/g, "");
 
             const ext = path.extname(file.originalname);
             const name = path.basename(teste, ext);
-            cb(null, `${name}-${Date.now()}${ext}`)
-            
+            cb(null, `${name}-${Date.now()}${ext}`);
+        }
+    }),
+    
+    // Nova configuração para public/uploads (novas rotas)
+    storagePublic: multer.diskStorage({
+        destination: publicUploadsDir,
+        filename: (req, file, cb) => {
+            let teste = file.originalname.split(" ");
+            teste = String(teste);
+            teste = teste.replace(/,/g, "");
+
+            const ext = path.extname(file.originalname);
+            const name = path.basename(teste, ext);
+            cb(null, `${name}-${Date.now()}${ext}`);
         }
     })
 }
