@@ -6,15 +6,19 @@ const fs = require("fs");
 const uploadsDir = path.resolve(__dirname, "..", "..", "uploads");
 const publicUploadsDir = path.resolve(__dirname, "..", "..", "public", "uploads");
 
-[uploadsDir, publicUploadsDir].forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-});
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+if (!fs.existsSync(publicUploadsDir)) {
+    fs.mkdirSync(publicUploadsDir, { recursive: true });
+}
 
 // Configuração padrão - mantém compatibilidade com rotas existentes
 const storage = multer.diskStorage({
-    destination: path.resolve(__dirname, "..", "..", "uploads"),
+    destination: (req, file, cb) => {
+        cb(null, uploadsDir);
+    },
     filename: (req, file, cb) => {
         let teste = file.originalname.split(" ");
         teste = String(teste);
@@ -28,7 +32,9 @@ const storage = multer.diskStorage({
 
 // Nova configuração para public/uploads (novas rotas)
 const storagePublic = multer.diskStorage({
-    destination: publicUploadsDir,
+    destination: (req, file, cb) => {
+        cb(null, publicUploadsDir);
+    },
     filename: (req, file, cb) => {
         let teste = file.originalname.split(" ");
         teste = String(teste);
@@ -40,7 +46,23 @@ const storagePublic = multer.diskStorage({
     }
 });
 
+// Criar instâncias de upload configuradas
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
+
+const uploadPublic = multer({ 
+    storage: storagePublic,
+    limits: { 
+        fileSize: 10 * 1024 * 1024, // 10MB
+        files: 20 // Permitir até 20 arquivos
+    }
+});
+
 module.exports = {
     storage,
-    storagePublic
+    storagePublic,
+    upload,
+    uploadPublic
 }

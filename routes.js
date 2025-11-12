@@ -50,14 +50,9 @@ const AllDataRecovery = []
 
 const routes = express.Router();
 
-// Upload padrão - mantém rotas existentes funcionando
-const upload = multer({ storage: uploadConfig.storage });
-
-// Upload para public/uploads - apenas para novas rotas
-const uploadPublic = multer({ 
-    storage: uploadConfig.storagePublic,
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB
-});
+// Usar as instâncias já configuradas do uploadConfig
+const upload = uploadConfig.upload || multer(uploadConfig);
+const uploadPublic = uploadConfig.uploadPublic;
 
 
 
@@ -196,43 +191,11 @@ routes.use('/upload', (req, res, next) => {
     next();
 });
 
-// Upload de arquivo único
-routes.post("/upload/single", 
-    (req, res, next) => {
-        uploadPublic.single("file")(req, res, (err) => {
-            if (err) {
-                console.error('Multer Error (single):', err);
-                return res.status(400).json({
-                    message: "Erro no upload",
-                    type: "Error",
-                    error: err.message,
-                    details: err.field ? `Campo esperado: 'file', recebido: '${err.field}'` : null
-                });
-            }
-            next();
-        });
-    },
-    UploadController.single
-);
+// Upload de arquivo único - forma direta sem wrapper
+routes.post("/upload/single", uploadPublic.single("file"), UploadController.single);
 
-// Upload de múltiplos arquivos
-routes.post("/upload/multiple", 
-    (req, res, next) => {
-        uploadPublic.array("files", 10)(req, res, (err) => {
-            if (err) {
-                console.error('Multer Error (multiple):', err);
-                return res.status(400).json({
-                    message: "Erro no upload",
-                    type: "Error",
-                    error: err.message,
-                    details: err.field ? `Campo esperado: 'files', recebido: '${err.field}'` : null
-                });
-            }
-            next();
-        });
-    },
-    UploadController.multiple
-);
+// Upload de múltiplos arquivos - forma direta sem wrapper
+routes.post("/upload/multiple", uploadPublic.array("files", 20), UploadController.multiple);
 
 // ============================================
 // ROTAS EXISTENTES (NÃO ALTERAR)
