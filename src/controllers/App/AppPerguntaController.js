@@ -61,9 +61,21 @@ module.exports = {
 
         try{
 
-            if(tipo == 'Tematica')results = await Perguntas.find({tema_id:item._id})
-
-            else  results = await Perguntas.find({})
+            if(tipo == 'Tematica'){
+                results = await Perguntas.find({tema_id:item._id})
+            } 
+            else if(tipo == 'Profissional'){
+                // Busca temas profissionais (numero >= 25)
+                const temasProfissionais = await Temas.find({"numero": {"$gte": 25}})
+                // Extrai os IDs dos temas
+                const temasIds = temasProfissionais.map(t => t._id)
+                // Busca perguntas desses temas
+                results = await Perguntas.find({tema_id: {$in: temasIds}})
+            }
+            else {
+                // Tipo "Geral" - busca todas as perguntas
+                results = await Perguntas.find({})
+            }
             
             shuffle(results)
             
