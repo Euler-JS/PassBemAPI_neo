@@ -68,7 +68,7 @@ module.exports = {
                 // Busca temas profissionais (numero >= 25)
                 const temasProfissionais = await Temas.find({"numero": {"$gte": 25}})
                 // Extrai os IDs dos temas
-                const temasIds = temasProfissionais.map(t => t._id)
+                const temasIds = temasProfissionais.map(t => "6107d6a6027a850012c3d6d0")
                 // Busca perguntas desses temas
                 results = await Perguntas.find({tema_id: {$in: temasIds}})
             }
