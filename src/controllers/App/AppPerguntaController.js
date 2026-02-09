@@ -36,7 +36,10 @@ module.exports = {
 
         try{
 
-            const temas = await Temas.find({ "numero": { "$gte": 25 } })
+            const temas = await Temas.find({ 
+                "numero": { "$gte": 25 },
+                "_id": { "$ne": "6107d6a6027a850012c3d6d0" }
+            })
 
             const creditos = await Creditos.findOne({user: user})
 
@@ -73,8 +76,8 @@ module.exports = {
                 results = await Perguntas.find({tema_id: {$in: temasIds}})
             }
             else {
-                // Tipo "Geral" - busca todas as perguntas
-                results = await Perguntas.find({})
+                // Tipo "Geral" - busca todas as perguntas, exceto do tema profissional
+                results = await Perguntas.find({tema_id: {$ne: '6107d6a6027a850012c3d6d0'}})
             }
             
             shuffle(results)
