@@ -118,6 +118,7 @@ routes.delete("/videosaula/:_id",  VideoController.delete)
 
 routes.post("/appuser", UserAppController.create)
 routes.get("/appuser", UserAppController.login)
+routes.post("/trial", UserAppController.createTrial)
 routes.post("/appuserinf", upload.single("imagem"), AppUserInf.create)
 routes.put("/appuserinf", upload.single("imagem"), AppUserInf.getInf)
 

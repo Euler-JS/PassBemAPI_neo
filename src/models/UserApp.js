@@ -3,16 +3,25 @@ const mongoose = require("mongoose")
 const AppUser = new mongoose.Schema({
     numero: {
         type:Number,
-        required: true,
     },
     senha: {
         type:String,
-        required: true,
     },
     user_inf:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "InfAppUser",
-    }
+    },
+    isTrial: {
+        type: Boolean,
+        default: false,
+    },
+    trialTestsUsed: {
+        type: Number,
+        default: 0,
+    },
+    deviceId: {
+        type: String,
+    },
 }, {
     timestamps:  true,
     toJSON: {

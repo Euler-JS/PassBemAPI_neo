@@ -1,7 +1,8 @@
 const Temas = require("../../models/Temas");
 const Perguntas = require("../../models/Pergunta");
 const Provas = require('../../models/Provas');
-const Creditos = require('../../models/Creditos')
+const Creditos = require('../../models/Creditos');
+const UserAPP = require('../../models/UserApp');
 
 /* const axios = require("axios")
 
@@ -63,6 +64,16 @@ module.exports = {
         if(!authorization) return res.status(401).json({message:' you don`t have permition'})
 
         try{
+            // Verificar se é utilizador trial e se esgotou os testes gratuitos
+            const userDoc = await UserAPP.findById(authorization).catch(() => null);
+            if (userDoc && userDoc.isTrial) {
+                if (tipo !== 'Geral') {
+                    return res.status(403).json({ message: 'trial_type_restricted', info: 'Utilizadores em modo trial só podem fazer testes do tipo Geral.' });
+                }
+                if (userDoc.trialTestsUsed >= 2) {
+                    return res.status(403).json({ message: 'trial_exhausted', info: 'Limite de testes gratuitos atingido. Cria uma conta para continuar.' });
+                }
+            }
 
             if(tipo == 'Tematica'){
                 results = await Perguntas.find({tema_id:item._id})
@@ -96,6 +107,10 @@ module.exports = {
 
             const prova = await Provas.create(data)
 
+            // Incrementar contador de testes do utilizador trial
+            if (userDoc && userDoc.isTrial) {
+                await UserAPP.findByIdAndUpdate(authorization, { $inc: { trialTestsUsed: 1 } });
+            }
 
             return res.json({results,prova})
         } catch (error) {

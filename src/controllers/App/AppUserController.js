@@ -2,6 +2,26 @@ const UserAPP = require("../../models/UserApp");
 
 module.exports ={
 
+    async createTrial(req, res){
+        const { deviceId } = req.body;
+
+        if (!deviceId) {
+            return res.status(400).json({ message: "deviceId é obrigatório" });
+        }
+
+        try {
+            let user = await UserAPP.findOne({ deviceId, isTrial: true });
+
+            if (!user) {
+                user = await UserAPP.create({ deviceId, isTrial: true, trialTestsUsed: 0 });
+            }
+
+            return res.json({ id: user._id, trialTestsUsed: user.trialTestsUsed });
+        } catch (error) {
+            return res.status(500).json({ message: "Erro ao criar sessão trial", error_detalhe: error });
+        }
+    },
+
     async login(req, res){
 
         const {numero, senha} = req.headers;
