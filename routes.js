@@ -155,6 +155,7 @@ routes.get('/appmaterial/:categoria', MaterailController.indexOne);
 
 // painel de controller
 routes.get('/dasboard', DashboardController.index);
+routes.get('/dasboard/chart', DashboardController.chartAnual);
 routes.get('/compras', DashboardController.indexOne);
 routes.get('/estudantes', DashboardController.indexSchool);
 
