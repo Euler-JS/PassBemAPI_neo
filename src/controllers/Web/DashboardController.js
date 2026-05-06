@@ -125,6 +125,46 @@ module.exports = {
         }
     },
 
+    async chartAnual(request, response){
+
+        const ano = parseInt(request?.query?.ano) || new Date().getFullYear();
+
+        const meses = [
+            'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+            'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'
+        ];
+
+        try {
+            const resultado = await HistoricoCreditos.aggregate([
+                {
+                    $match: {
+                        status: true,
+                        inscricao: {
+                            $gte: new Date(`${ano}-01-01`),
+                            $lt:  new Date(`${ano + 1}-01-01`),
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $month: '$inscricao' },
+                        acumulado: { $sum: '$valor' }
+                    }
+                }
+            ]);
+
+            const data = meses.map((name, i) => {
+                const entry = resultado.find(r => r._id === i + 1);
+                return { time: name, acumulado: entry ? entry.acumulado : 0 };
+            });
+
+            return response.json({ type: 'Confirmation', statusCode: 200, value: data });
+
+        } catch (error) {
+            return response.status(500).json({ type: 'Refused', error_detalhe: error });
+        }
+    },
+
     async indexSchool(request, response){
 
         const categoria = request?.query?.categoria;
